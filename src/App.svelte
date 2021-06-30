@@ -4,6 +4,7 @@
     import Header from '~/components/Header.svelte'
     import routes from "~/routes/index.js"
     import Footer from "~/components/Footer.svelte"
+
 </script>
 
 <Header></Header>

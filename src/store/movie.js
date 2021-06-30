@@ -17,7 +17,11 @@ export async function searchMovies(payload){
     message.set('')
     let total = 0
     try{
-        const res = await _fetchMovie({...payload, page:1})
+        // const res = await _fetchMovie({...payload, page:1})
+        const res = await axios.post('/.netlify/functions/movie', {
+            ...payload,
+            page: 1
+        })
         const { Search, totalResults } = res.data
         movies.set(Search)
         total = totalResults
@@ -36,7 +40,11 @@ export async function searchMovies(payload){
             if(page > (payload.number / 10)){
                 break;
             }
-            const res = await _fetchMovie({...payload, page})
+            // const res = await _fetchMovie({...payload, page})
+            const res = await axios.post('/.netlify/functions/movie', {
+                ...payload,
+                page
+            })
             const { Search } = res.data
             movies.update($movies => _unionBy($movies, Search, 'imdbID'));
             
@@ -49,27 +57,9 @@ export async function searchMovieWithId(id) {
     if(get(loading)) return
     loading.set(true)
 
-    const res = await _fetchMovie({id})
+    // const res = await _fetchMovie({id})
+    const res = await axios.post('/.netlify/functions/movie', {id})
 
     theMovie.set(res.data)
     loading.set(false)
-}
-
-function _fetchMovie(payload) {
-    const { title, type, year, page, id } = payload
-    const OMDB_API_KEY = "68c092d1";
-    const url = id ? `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}&plot=full` : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`
-
-    return new Promise(async (resolve, reject) => {
-        try{
-            const res = await axios.get(url)
-            if(res.data.Error) {
-                reject(res.data.Error)
-            }
-            resolve(res)
-        }
-        catch(error){
-            reject(error.message)    
-        }
-    })
 }
